@@ -79,21 +79,31 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        // checkCollisions();
     }
 
     /* This is called by the update function and loops through all of the
-     * objects within your allEnemies array as defined in app.js and calls
+     * objects within your allSprites array as defined in app.js and calls
      * their update() methods. It will then call the update function for your
      * player object. These update methods should focus purely on updating
      * the data/properties related to the object. Do your drawing in your
      * render methods.
      */
     function updateEntities(dt) {
-        allEnemies.forEach(function(enemy) {
-            enemy.update(dt);
+        allSprites.forEach(function(sprite) {
+            const event = sprite.update(dt, allSprites);
+            switch (event) {
+                case Events.TURN_LOST:
+                    win.alert( Events.properties[Events.TURN_LOST].message);
+                    reset();
+                    break;
+                case Events.TURN_WON:
+                    window.alert( Events.properties[Events.TURN_WON].message);
+                    reset();
+                    break;
+                default:
+                    ;
+            }
         });
-        player.update();
     }
 
     /* This function initially draws the "game level", it will then call
@@ -134,10 +144,9 @@ var Engine = (function(global) {
                  * so that we get the benefits of caching these images, since
                  * we're using them over and over.
                  */
-                ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
+                ctx.drawImage(Resources.get(rowImages[row]), col * blockWidth, row * blockHeight);
             }
         }
-
         renderEntities();
     }
 
@@ -146,14 +155,12 @@ var Engine = (function(global) {
      * on your enemy and player entities within app.js
      */
     function renderEntities() {
-        /* Loop through all of the objects within the allEnemies array and call
+        /* Loop through all of the objects within the allSprites array and call
          * the render function you have defined.
          */
-        allEnemies.forEach(function(enemy) {
-            enemy.render();
+        allSprites.forEach(function(sprite) {
+            sprite.render();
         });
-
-        player.render();
     }
 
     /* This function does nothing but it could have been a good place to
@@ -161,7 +168,7 @@ var Engine = (function(global) {
      * those sorts of things. It's only called once by the init() method.
      */
     function reset() {
-        // noop
+        initSprites();
     }
 
     /* Go ahead and load all of the images we know we're going to need to
@@ -173,7 +180,8 @@ var Engine = (function(global) {
         'images/water-block.png',
         'images/grass-block.png',
         'images/enemy-bug.png',
-        'images/char-boy.png'
+        'images/char-boy.png',
+        'images/char-pink-girl.png'
     ]);
     Resources.onReady(init);
 
